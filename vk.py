@@ -14,16 +14,20 @@ def detect_intent_texts(project_id, session_id, text, language_code):
     response = session_client.detect_intent(
         request={"session": session, "query_input": query_input}
     )
-    return response.query_result.fulfillment_text
+    if response.query_result.intent.is_fallback:
+        return None
+    else:
+        return response.query_result.fulfillment_text
 
 
 def answer_sender(event, vk_api, project_id):
     answer = detect_intent_texts(project_id, event.user_id, event.text, language_code = 'ru-RU')
-    vk_api.messages.send(
-        user_id=event.user_id,
-        message= answer,
-        random_id=random.randint(1,1000)
-    )
+    if answer:
+        vk_api.messages.send(
+            user_id=event.user_id,
+            message= answer,
+            random_id=random.randint(1,1000)
+        )
 
 
 def start_bot(vk_token, project_id):
