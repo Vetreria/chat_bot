@@ -1,7 +1,4 @@
-from cgitb import text
 import random
-import logging
-from turtle import update
 import dotenv
 import os
 import vk_api as vk
@@ -17,14 +14,14 @@ def detect_intent_texts(project_id, session_id, text, language_code):
     response = session_client.detect_intent(
         request={"session": session, "query_input": query_input}
     )
-    
-    print(response.query_result.fulfillment_text)
+    return response.query_result.fulfillment_text
 
 
-def echo(event, vk_api):
+def answer_sender(event, vk_api, project_id):
+    answer = detect_intent_texts(project_id, event.user_id, event.text, language_code = 'ru-RU')
     vk_api.messages.send(
         user_id=event.user_id,
-        message=event.text,
+        message= answer,
         random_id=random.randint(1,1000)
     )
 
@@ -35,20 +32,13 @@ def start_bot(vk_token, project_id):
     longpoll = VkLongPoll(vk_session)
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-            echo(event, vk_api)
-            # print('Новое сообщение:')
-            # if event.to_me:
-            #     print('Для меня от: ', event.user_id)
-            #     detect_intent_texts(project_id, event.user_id, event.text, language_code = 'ru-RU')
-            # else:д
-            #     print('От меня для: ', event.user_id)
-            # print('Текст:', event.text)
+            answer_sender(event, vk_api, project_id)
 
 
 def main() -> None:
     dotenv.load_dotenv()
-    project_id = os.getenv('GOOGLE_CLOUD_PROJECT_ID')
     vk_token = os.getenv("VK_GROUP_API")
+    project_id = os.getenv('GOOGLE_CLOUD_PROJECT_ID')
     start_bot(vk_token, project_id)
     
 
