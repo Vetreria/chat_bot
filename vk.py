@@ -21,17 +21,18 @@ def detect_intent_texts(project_id, session_id, text, language_code):
 
 
 def answer_sender(event, vk_api, project_id):
-    answer = detect_intent_texts(project_id, event.user_id, event.text, language_code = 'ru-RU')
+    answer = detect_intent_texts(
+        project_id, event.user_id, event.text, language_code='ru-RU')
     if answer:
         vk_api.messages.send(
             user_id=event.user_id,
-            message= answer,
-            random_id=random.randint(1,1000)
+            message=answer,
+            random_id=random.randint(1, 1000)
         )
 
 
 def start_bot(vk_token, project_id):
-    vk_session = vk.VkApi(token = vk_token)
+    vk_session = vk.VkApi(token=vk_token)
     vk_api = vk_session.get_api()
     longpoll = VkLongPoll(vk_session)
     for event in longpoll.listen():
@@ -44,7 +45,7 @@ def main() -> None:
     vk_token = os.getenv("VK_GROUP_API")
     project_id = os.getenv('GOOGLE_CLOUD_PROJECT_ID')
     start_bot(vk_token, project_id)
-    
+
 
 if __name__ == '__main__':
     main()
