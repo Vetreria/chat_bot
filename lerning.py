@@ -1,7 +1,6 @@
-import dotenv
 import os
 import json
-
+import dotenv
 
 dotenv.load_dotenv()
 project_id = os.getenv('GOOGLE_CLOUD_PROJECT_ID')
@@ -54,9 +53,6 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
 
 
 def main() -> None:
-    dotenv.load_dotenv()
-    os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
-    os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
     lerning_start()
 
 

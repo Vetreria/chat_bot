@@ -34,6 +34,8 @@ GOOGLE_APPLICATION_CREDENTIALS='ПУТЬ_ДО_JSON_ФАЙЛА_АВТОРИЗАЦ
 GOOGLE_CLOUD_PROJECT_ID="ID_ПРОЕКТА_GOOGLE_CLOUD"
 LEARNING_INTENTS="путь_до_файла_с_обучением_бота.json"
 VK_GROUP_API="API_TOKEN_VK_GROUP"
+SUP_BOT_TG = "Токен бота для логов"
+SUP_CHAT_TG = 'Номер группы или пользователя для отправки логов'
 ```
 
 Для запуска бота telegram нужно запустить main.py
@@ -47,6 +49,7 @@ python main.py
 ```
 python vk.py
 ```
+Боты будут присылать уведомления о важных событиях и присылать ошибки пользователю через телеграм.
 
 Для обучения бота новым темам нужно запустить lerning.py
 

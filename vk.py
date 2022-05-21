@@ -1,8 +1,13 @@
 import random
-import dotenv
+import logging
 import os
+import dotenv
 import vk_api as vk
 from vk_api.longpoll import VkLongPoll, VkEventType
+from main import set_logger
+
+
+logger = logging.getLogger(__file__)
 
 
 def detect_intent_texts(project_id, session_id, text, language_code):
@@ -29,9 +34,12 @@ def answer_sender(event, vk_api, project_id):
             message=answer,
             random_id=random.randint(1, 1000)
         )
+    else:
+        logger.warning('Нет ответа на вопрос')
 
 
 def start_bot(vk_token, project_id):
+    logger.warning('Бот запустился')
     vk_session = vk.VkApi(token=vk_token)
     vk_api = vk_session.get_api()
     longpoll = VkLongPoll(vk_session)
@@ -41,10 +49,14 @@ def start_bot(vk_token, project_id):
 
 
 def main() -> None:
+    set_logger(logger)
     dotenv.load_dotenv()
     vk_token = os.getenv("VK_GROUP_API")
     project_id = os.getenv('GOOGLE_CLOUD_PROJECT_ID')
-    start_bot(vk_token, project_id)
+    try:
+        start_bot(vk_token, project_id)
+    except:
+        logger.exception('Бот ВК упал с ошибкой')
 
 
 if __name__ == '__main__':
