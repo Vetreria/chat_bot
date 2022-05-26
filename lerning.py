@@ -5,17 +5,18 @@ import dotenv
 dotenv.load_dotenv()
 project_id = os.getenv('GOOGLE_CLOUD_PROJECT_ID')
 lerning_intents = os.getenv('LEARNING_INTENTS')
+from google.cloud import dialogflow
 
 
-def open_questions():
-    with open(lerning_intents, "r", encoding="utf-8") as my_file:
-        questions = json.load(my_file)
+def get_questions():
+    with open(lerning_intents, "r", encoding="utf-8") as lerning_file:
+        questions = json.load(lerning_file)
     return questions
 
 
-def lerning_start():
+def lerning_dialog():
     try:
-        questions = open_questions()
+        questions = get_questions()
     except OSError:
         print('Ошибка открытия файла с вопросами')
         return
@@ -29,8 +30,6 @@ def lerning_start():
 
 
 def create_intent(project_id, display_name, training_phrases_parts, message_texts):
-    """Create an intent of the given intent type."""
-    from google.cloud import dialogflow
     intents_client = dialogflow.IntentsClient()
     parent = dialogflow.AgentsClient.agent_path(project_id)
     training_phrases = []
@@ -53,7 +52,7 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
 
 
 def main() -> None:
-    lerning_start()
+    lerning_dialog()
 
 
 if __name__ == '__main__':

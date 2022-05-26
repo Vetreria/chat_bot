@@ -4,7 +4,7 @@ import os
 import dotenv
 import vk_api as vk
 from vk_api.longpoll import VkLongPoll, VkEventType
-from main import set_logger
+from tg_bot import set_logger
 
 
 logger = logging.getLogger(__file__)
@@ -25,7 +25,7 @@ def detect_intent_texts(project_id, session_id, text, language_code):
         return response.query_result.fulfillment_text
 
 
-def answer_sender(event, vk_api, project_id):
+def send_answer(event, vk_api, project_id):
     answer = detect_intent_texts(
         project_id, event.user_id, event.text, language_code='ru-RU')
     if answer:
@@ -45,7 +45,7 @@ def start_bot(vk_token, project_id):
     longpoll = VkLongPoll(vk_session)
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-            answer_sender(event, vk_api, project_id)
+            send_answer(event, vk_api, project_id)
 
 
 def main() -> None:
