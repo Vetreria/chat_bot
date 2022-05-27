@@ -4,14 +4,10 @@ import dotenv
 import telegram
 from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from google.cloud import dialogflow
 
 
 logger = logging.getLogger(__file__)
-
-dotenv.load_dotenv()
-chat_id = os.environ["SUP_CHAT_TG"]
-sup_tg_token = os.environ["SUP_BOT_TG"]
-project_id = os.getenv('GOOGLE_CLOUD_PROJECT_ID')
 
 
 class TelegramLogsHandler(logging.Handler):
@@ -36,7 +32,7 @@ def start(update: Update, context: CallbackContext) -> None:
 
 
 def detect_intent_texts(update: Update, context: CallbackContext, language_code='ru-RU'):
-    from google.cloud import dialogflow
+    project_id = context.bot_data['project_id']
     session_client = dialogflow.SessionsClient()
     session = session_client.session_path(project_id, update.message.chat_id)
     text_input = dialogflow.TextInput(
@@ -53,19 +49,24 @@ def error_handler(update: Update, context: CallbackContext):
     logger.exception('Telegram-бот упал с ошибкой')
 
 
-def set_logger(logger):
+def set_logger(logger, sup_tg_token, chat_id):
     logger_bot = telegram.Bot(token=sup_tg_token)
     logger.setLevel(logging.WARNING)
     logger.addHandler(TelegramLogsHandler(logger_bot, chat_id))
 
 
 def main() -> None:
-    set_logger(logger)
+    dotenv.load_dotenv()
+    chat_id = os.environ["SUP_CHAT_TG"]
+    sup_tg_token = os.environ["SUP_BOT_TG"]
+    project_id = os.getenv('GOOGLE_CLOUD_PROJECT_ID')
+    set_logger(logger, sup_tg_token, chat_id)
     logger.warning('Бот запустился')
 
     tg_token = os.environ["TG_TOKEN"]
     updater = Updater(tg_token)
     dispatcher = updater.dispatcher
+    dispatcher.bot_data['project_id'] = project_id
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(MessageHandler(
         Filters.text & ~Filters.command, detect_intent_texts))
