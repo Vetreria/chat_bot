@@ -1,33 +1,20 @@
+from asyncio import exceptions
 import random
 import logging
 import os
 import dotenv
 import vk_api as vk
 from vk_api.longpoll import VkLongPoll, VkEventType
-from tg_bot import set_logger
+from logger import set_logger
+from dialogflow import detect_intent_texts
 
 
 logger = logging.getLogger(__file__)
 
 
-def detect_intent_texts(project_id, session_id, text, language_code):
-    from google.cloud import dialogflow
-    session_client = dialogflow.SessionsClient()
-    session = session_client.session_path(project_id, session_id)
-    text_input = dialogflow.TextInput(text=text, language_code=language_code)
-    query_input = dialogflow.QueryInput(text=text_input)
-    response = session_client.detect_intent(
-        request={"session": session, "query_input": query_input}
-    )
-    if response.query_result.intent.is_fallback:
-        return None
-    else:
-        return response.query_result.fulfillment_text
-
-
 def send_answer(event, vk_api, project_id):
     answer = detect_intent_texts(
-        project_id, event.user_id, event.text, language_code='ru-RU')
+        project_id, event.user_id, event.text)
     if answer:
         vk_api.messages.send(
             user_id=event.user_id,
@@ -49,13 +36,15 @@ def start_bot(vk_token, project_id):
 
 
 def main() -> None:
-    set_logger(logger)
     dotenv.load_dotenv()
+    chat_id = os.environ["SUP_CHAT_TG"]
+    sup_tg_token = os.environ["SUP_BOT_TG"]
+    set_logger(logger, sup_tg_token, chat_id)
     vk_token = os.getenv("VK_GROUP_API")
     project_id = os.getenv('GOOGLE_CLOUD_PROJECT_ID')
     try:
         start_bot(vk_token, project_id)
-    except:
+    except exceptions:
         logger.exception('Бот ВК упал с ошибкой')
 
 

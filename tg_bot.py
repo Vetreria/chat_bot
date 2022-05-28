@@ -1,10 +1,10 @@
 import logging
 import os
 import dotenv
-import telegram
 from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
-from google.cloud import dialogflow
+from logger import set_logger
+from dialogflow import detect_intent_texts
 
 
 logger = logging.getLogger(__file__)
@@ -31,35 +31,21 @@ def start(update: Update, context: CallbackContext) -> None:
     )
 
 
-def detect_intent_texts(update: Update, context: CallbackContext, language_code='ru-RU'):
-    project_id = context.bot_data['project_id']
-    session_client = dialogflow.SessionsClient()
-    session = session_client.session_path(project_id, update.message.chat_id)
-    text_input = dialogflow.TextInput(
-        text=update.message.text, language_code=language_code)
-    query_input = dialogflow.QueryInput(text=text_input)
-    response = session_client.detect_intent(
-        request={"session": session, "query_input": query_input}
-    )
-    update.message.reply_text(response.query_result.fulfillment_text)
-    logger.warning('Сообщение ушло')
-
-
 def error_handler(update: Update, context: CallbackContext):
     logger.exception('Telegram-бот упал с ошибкой')
 
 
-def set_logger(logger, sup_tg_token, chat_id):
-    logger_bot = telegram.Bot(token=sup_tg_token)
-    logger.setLevel(logging.WARNING)
-    logger.addHandler(TelegramLogsHandler(logger_bot, chat_id))
-
+def dialogflow_conversation(update : Update, context : CallbackContext):
+    project_id = context.bot_data['project_id']
+    context.bot.send_message(chat_id = update.effective_chat.id, text = detect_intent_texts(project_id, update.effective_chat.id, update.message.text))
+    
 
 def main() -> None:
     dotenv.load_dotenv()
     chat_id = os.environ["SUP_CHAT_TG"]
     sup_tg_token = os.environ["SUP_BOT_TG"]
     project_id = os.getenv('GOOGLE_CLOUD_PROJECT_ID')
+
     set_logger(logger, sup_tg_token, chat_id)
     logger.warning('Бот запустился')
 
@@ -69,7 +55,7 @@ def main() -> None:
     dispatcher.bot_data['project_id'] = project_id
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(MessageHandler(
-        Filters.text & ~Filters.command, detect_intent_texts))
+        Filters.text & ~Filters.command, dialogflow_conversation))
     dispatcher.add_error_handler(error_handler)
     updater.start_polling()
     updater.idle()

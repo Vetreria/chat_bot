@@ -2,6 +2,7 @@ import os
 import json
 import dotenv
 from google.cloud import dialogflow
+from google.api_core.exceptions import AlreadyExists, InvalidArgument
 
 
 def get_questions(lerning_intents):
@@ -21,7 +22,9 @@ def lerning_dialog(project_id, lerning_intents):
         try:
             create_intent(project_id, intent,
                           phrases['questions'], [phrases['answer']])
-        except:
+        except AlreadyExists:
+            print('Ошибка создания: {}'.format(intent))
+        except InvalidArgument:
             print('Ошибка создания: {}'.format(intent))
 
 
