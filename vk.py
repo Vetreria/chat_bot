@@ -1,4 +1,5 @@
 from asyncio import exceptions
+from msilib.schema import Error
 import random
 import logging
 import os
@@ -26,13 +27,16 @@ def send_answer(event, vk_api, project_id):
 
 
 def start_bot(vk_token, project_id):
-    logger.warning('Бот запустился')
-    vk_session = vk.VkApi(token=vk_token)
-    vk_api = vk_session.get_api()
-    longpoll = VkLongPoll(vk_session)
-    for event in longpoll.listen():
-        if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-            send_answer(event, vk_api, project_id)
+    try:
+        logger.warning('Бот запустился')
+        vk_session = vk.VkApi(token=vk_token)
+        vk_api = vk_session.get_api()
+        longpoll = VkLongPoll(vk_session)
+        for event in longpoll.listen():
+            if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                send_answer(event, vk_api, project_id)
+    except BaseException:
+        logger.exception('Бот ВК упал с ошибкой')
 
 
 def main() -> None:
@@ -42,10 +46,8 @@ def main() -> None:
     set_logger(logger, sup_tg_token, chat_id)
     vk_token = os.getenv("VK_GROUP_API")
     project_id = os.getenv('GOOGLE_CLOUD_PROJECT_ID')
-    try:
-        start_bot(vk_token, project_id)
-    except exceptions:
-        logger.exception('Бот ВК упал с ошибкой')
+    start_bot(vk_token, project_id)
+    
 
 
 if __name__ == '__main__':
