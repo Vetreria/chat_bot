@@ -42,8 +42,8 @@ def start_bot(vk_token, project_id):
 def main() -> None:
     dotenv.load_dotenv()
     chat_id = os.environ["SUP_CHAT_TG"]
-    sup_tg_token = os.environ["SUP_BOT_TG"]
-    set_logger(logger, sup_tg_token, chat_id)
+    sup_tg_bot = os.environ["SUP_BOT_TG"]
+    set_logger(logger, sup_tg_bot, chat_id)
     vk_token = os.getenv("VK_GROUP_API")
     project_id = os.getenv('GOOGLE_CLOUD_PROJECT_ID')
     start_bot(vk_token, project_id)

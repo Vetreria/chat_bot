@@ -12,10 +12,10 @@ logger = logging.getLogger(__file__)
 
 class TelegramLogsHandler(logging.Handler):
 
-    def __init__(self, sup_tg_token, chat_id):
+    def __init__(self, sup_tg_bot, chat_id):
         super().__init__()
         self.chat_id = chat_id
-        self.tg_bot = sup_tg_token
+        self.tg_bot = sup_tg_bot
         self.tg_bot.send_message(chat_id=self.chat_id, text='LOG-BOT: started')
 
     def emit(self, record):
@@ -43,10 +43,10 @@ def dialogflow_conversation(update : Update, context : CallbackContext):
 def main() -> None:
     dotenv.load_dotenv()
     chat_id = os.environ["SUP_CHAT_TG"]
-    sup_tg_token = os.environ["SUP_BOT_TG"]
+    sup_tg_bot = os.environ["SUP_BOT_TG"]
     project_id = os.getenv('GOOGLE_CLOUD_PROJECT_ID')
 
-    set_logger(logger, sup_tg_token, chat_id)
+    set_logger(logger, sup_tg_bot, chat_id)
     logger.warning('Бот запустился')
 
     tg_token = os.environ["TG_TOKEN"]
