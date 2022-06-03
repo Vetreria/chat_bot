@@ -2,9 +2,6 @@ import logging
 import telegram
 
 
-logger = logging.getLogger(__file__)
-
-
 class TelegramLogsHandler(logging.Handler):
 
     def __init__(self, sup_tg_bot, chat_id):
