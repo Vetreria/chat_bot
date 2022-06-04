@@ -15,7 +15,7 @@ logger = logging.getLogger(__file__)
 
 def send_answer(event, vk_api, project_id):
     answer = detect_intent_texts(
-        project_id, event.user_id, event.text)
+        project_id, event.user_id, event.text, skip_fallback = False)
     if answer:
         vk_api.messages.send(
             user_id=event.user_id,
