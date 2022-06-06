@@ -11,4 +11,4 @@ def detect_intent_texts(project_id, session_id, text):
     response = session_client.detect_intent(
         request={"session": session, "query_input": query_input}
     )
-    return response
+    return response.query_result

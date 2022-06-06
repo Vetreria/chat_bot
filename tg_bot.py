@@ -25,7 +25,7 @@ def error_handler(update: Update, context: CallbackContext):
 def dialogflow_conversation(update : Update, context : CallbackContext):
     project_id = context.bot_data['project_id']
     df_response = detect_intent_texts(project_id, update.effective_chat.id, update.message.text)
-    context.bot.send_message(chat_id = update.effective_chat.id, text = df_response.query_reuslt.fulfillment_text)
+    context.bot.send_message(chat_id = update.effective_chat.id, text = df_response.fulfillment_text)
     
 
 def main() -> None:

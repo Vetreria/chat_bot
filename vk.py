@@ -16,10 +16,10 @@ logger = logging.getLogger(__file__)
 def send_answer(event, vk_api, project_id):
     answer = detect_intent_texts(
         project_id, event.user_id, event.text)
-    if not answer.query_result.intent.is_fallback:
+    if not answer.intent.is_fallback:
         vk_api.messages.send(
             user_id=event.user_id,
-            message=answer,
+            message=answer.fulfillment_text,
             random_id=random.randint(1, 1000)
         )
     else:
